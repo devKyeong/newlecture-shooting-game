@@ -8,17 +8,25 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 import com.newlecture.game.entity.Background;
 import com.newlecture.game.entity.Fighter;
+import com.newlecture.game.entity.Missile;
 
 public class GameCanvas extends Canvas implements Runnable{
 
 	private Fighter fighter;
 	private Background background;
+	private List<Missile> missiles;
 	private static GameCanvas instance;
 	private Thread gameThread;
 	private int direction;
+
+	private boolean isFiring;
+	private int fireInterval;
 
 	public static GameCanvas getInstance() {
 		if(instance == null)
@@ -29,6 +37,7 @@ public class GameCanvas extends Canvas implements Runnable{
 	private GameCanvas() {
 		background = new Background();
 		fighter = new Fighter();
+		missiles = new ArrayList<Missile>();
 
 		gameThread = new Thread(this);
 		gameThread.start();
@@ -67,6 +76,9 @@ public class GameCanvas extends Canvas implements Runnable{
 				case KeyEvent.VK_DOWN:
 					direction ^= Fighter.MOVE_DOWN;
 					break;
+				case KeyEvent.VK_SPACE:
+					isFiring = false;
+					break;
 				default:
 					break;
 				}
@@ -90,6 +102,9 @@ public class GameCanvas extends Canvas implements Runnable{
 				case KeyEvent.VK_DOWN:
 					direction |= Fighter.MOVE_DOWN;
 					break;
+				case KeyEvent.VK_SPACE:
+					isFiring = true;
+					break;
 				default:
 					break;
 				}
@@ -106,6 +121,9 @@ public class GameCanvas extends Canvas implements Runnable{
 		background.draw(buf.getGraphics());
 		fighter.draw(buf.getGraphics());
 
+		for (Missile missile : missiles)
+			missile.draw(buf.getGraphics());
+		
 		g.drawImage(buf, 0, 0, this);
 	}
 
@@ -117,8 +135,31 @@ public class GameCanvas extends Canvas implements Runnable{
 	@Override
 	public void run() {
 		while(true) {
+
+			if(isFiring){
+				if(fireInterval == 0)
+					missiles.add(fighter.fire());
+
+				fireInterval++;
+				fireInterval %= 5;
+			}
+			
+
 			background.update();
 			fighter.update();
+			
+			Iterator<Missile> iterator = missiles.iterator();
+
+			Missile missile;
+			while(iterator.hasNext()){
+				missile = iterator.next();
+
+				if(missile.isHit())
+					iterator.remove();
+				else
+					missile.update();
+			}
+
 			repaint();
 			try {
 				Thread.sleep(17);

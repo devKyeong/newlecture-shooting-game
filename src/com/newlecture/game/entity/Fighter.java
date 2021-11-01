@@ -29,7 +29,6 @@ public class Fighter {
 	public static final int MOVE_DOWN = 0b0100; //4
 	public static final int MOVE_LEFT = 0b1000; //8
 
-
 	public Fighter() {
 		this(200,500);
 	}
@@ -47,6 +46,17 @@ public class Fighter {
 		this.x = x;
 		this.y = y;
 
+	}
+
+	public Missile fire(){
+
+		GameCanvas canvas = GameCanvas.getInstance();
+		int height = img.getHeight(canvas);
+
+		double x = this.x;
+		double y = this.y - (height/2);
+
+		return new Missile(x,y,speed);
 	}
 
 	public void move(int dx, int dy) {
