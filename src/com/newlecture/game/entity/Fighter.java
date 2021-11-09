@@ -7,9 +7,9 @@ import java.awt.Toolkit;
 import com.newlecture.game.ui.GameCanvas;
 
 
-public class Fighter {
+public class Fighter implements Entity {
 
-	private Image img;
+	private static Image img;
 	private int imgIndex;
 	private int imgIndexDuration;
 
@@ -29,15 +29,19 @@ public class Fighter {
 	public static final int MOVE_DOWN = 0b0100; //4
 	public static final int MOVE_LEFT = 0b1000; //8
 
+
+	static { 
+		
+				img = Toolkit
+						.getDefaultToolkit()
+						.getImage("res/images/fighter.png");
+
+	}
 	public Fighter() {
 		this(200,500);
 	}
 
 	public Fighter(int x, int y) {
-
-		img = Toolkit
-				.getDefaultToolkit()
-				.getImage("res/images/fighter.png");
 		imgIndex = 3;
 
 		distance = 1;
@@ -161,6 +165,11 @@ public class Fighter {
 
 	public void setDirection(int direction) {
 		this.direction = direction;
+	}
+
+	@Override
+	public boolean outSideOfBounds() {
+		return false;
 	}
 
 }

@@ -5,30 +5,23 @@ import java.awt.Toolkit;
 
 import com.newlecture.game.ui.GameCanvas;
 
-public class Missile {
+public class Missile implements Entity{
 
     private static Image img;
     private double x;
     private double y;
 
     private int speed;
-    private boolean isHit;
     
     static {
         img = Toolkit.getDefaultToolkit().getImage("res/images/missile.png");
     }
 
-    public void setHit(boolean isHit) {
-        this.isHit = isHit;
-    }
-
-    public boolean isHit() {
-        return isHit;
+    public boolean outSideOfBounds() {
+        return ( 0 >= x || x >= 500 ) || (0 >= y || y >= 700);
     }
 
     public Missile(double x, double y, int speed) {
-        
-
         this.x = x;
         this.y = y;
         this.speed = speed+10;
@@ -36,9 +29,8 @@ public class Missile {
 
 
     public void update() {
-        if(y <= 0)
-            setHit(true);
-        else y -= speed;
+        if(!outSideOfBounds())
+            y -= speed;
     }
 
     public void draw(Graphics g) {

@@ -6,17 +6,20 @@ import java.awt.Toolkit;
 
 import com.newlecture.game.ui.GameCanvas;
 
-public class Background {
+public class Background implements Entity{
 
-	private Image img;
+	private static Image img;
 	private int width;
 	private int height;
 	private double y;
 
 	private int speed;
 
-	public Background() {
+	static {
 		img = Toolkit.getDefaultToolkit().getImage("res/images/space.jpg"); //비동기 로드
+	}
+
+	public Background() {
 
 		//동기는 ImageIO를 이용.
 		width = 500;
@@ -24,10 +27,6 @@ public class Background {
 		y = -(height - 700);
 
 		speed = 2;
-	}
-
-	public void moveDown() {
-		
 	}
 
 	public void update() {
@@ -41,5 +40,10 @@ public class Background {
 
 		g.drawImage(img,0,-(height-y),width,height,canvas);
 		g.drawImage(img, 0, y, width, height, canvas);
+	}
+
+	@Override
+	public boolean outSideOfBounds() {
+		return false;
 	}
 }

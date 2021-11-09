@@ -13,18 +13,17 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.newlecture.game.entity.Background;
+import com.newlecture.game.entity.Entity;
 import com.newlecture.game.entity.Fighter;
-import com.newlecture.game.entity.Missile;
 
 public class GameCanvas extends Canvas implements Runnable{
 
 	private Fighter fighter;
-	private Background background;
-	private List<Missile> missiles;
+	private List<Entity> entities;
+
 	private static GameCanvas instance;
 	private Thread gameThread;
 	private int direction;
-
 	private boolean isFiring;
 	private int fireInterval;
 
@@ -35,9 +34,11 @@ public class GameCanvas extends Canvas implements Runnable{
 	}
 
 	private GameCanvas() {
-		background = new Background();
 		fighter = new Fighter();
-		missiles = new ArrayList<Missile>();
+		entities = new ArrayList<Entity>();
+
+		entities.add(new Background());
+		entities.add(fighter);
 
 		gameThread = new Thread(this);
 		gameThread.start();
@@ -45,7 +46,6 @@ public class GameCanvas extends Canvas implements Runnable{
 		this.addMouseMotionListener(new MouseMotionAdapter() {
 			@Override
 			public void mouseDragged(MouseEvent e) {
-				//System.out.println("mouse Dragged");
 				fighter.move(e.getX(), e.getY());
 			}
 		});
@@ -53,7 +53,6 @@ public class GameCanvas extends Canvas implements Runnable{
 		this.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				//System.out.println("mouse Clicked");
 				fighter.move(e.getX(),e.getY());
 			}
 		});
@@ -62,7 +61,6 @@ public class GameCanvas extends Canvas implements Runnable{
 
 			@Override
 			public void keyReleased(KeyEvent e) {
-				//System.out.println("key Released");
 				switch (e.getKeyCode()) {
 				case KeyEvent.VK_LEFT:
 					direction ^= Fighter.MOVE_LEFT;
@@ -87,8 +85,6 @@ public class GameCanvas extends Canvas implements Runnable{
 			}
 			@Override
 			public void keyPressed(KeyEvent e) {
-				//System.out.println("key Pressed");
-
 				switch (e.getKeyCode()) {
 				case KeyEvent.VK_LEFT:
 					direction |= Fighter.MOVE_LEFT;
@@ -116,19 +112,18 @@ public class GameCanvas extends Canvas implements Runnable{
 
 	@Override
 	public void paint(Graphics g) {
-
+		System.out.println("paint");
 		Image buf = this.createImage(getWidth(), getHeight());
-		background.draw(buf.getGraphics());
-		fighter.draw(buf.getGraphics());
 
-		for (Missile missile : missiles)
-			missile.draw(buf.getGraphics());
-		
+		for(Entity entity : entities)
+			entity.draw(buf.getGraphics());
+
 		g.drawImage(buf, 0, 0, this);
 	}
 
 	@Override
 	public void update(Graphics g) {
+		System.out.println("update");
 		paint(g);
 	}
 
@@ -138,28 +133,23 @@ public class GameCanvas extends Canvas implements Runnable{
 
 			if(isFiring){
 				if(fireInterval == 0)
-					missiles.add(fighter.fire());
+					entities.add(fighter.fire());
 
 				fireInterval++;
 				fireInterval %= 5;
 			}
 			
-
-			background.update();
-			fighter.update();
-			
-			Iterator<Missile> iterator = missiles.iterator();
-
-			Missile missile;
+			Iterator<Entity> iterator = entities.iterator();
+			Entity entity;
 			while(iterator.hasNext()){
-				missile = iterator.next();
+				entity = iterator.next();
 
-				if(missile.isHit())
+				if(entity.outSideOfBounds())
 					iterator.remove();
 				else
-					missile.update();
+					entity.update();
 			}
-
+			System.out.println("repaint");
 			repaint();
 			try {
 				Thread.sleep(17);
